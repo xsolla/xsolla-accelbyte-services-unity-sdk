@@ -1,0 +1,19 @@
+{
+  "name": "com.xsolla.xsollasdk",
+  "displayName": "Xsolla Unity Gaming Service SDK",
+  "version": "0.0.1",
+  "unity": "2021.3",
+  "keywords": [
+    "third party",
+    "services",
+    "multiplayer",
+    "backend"
+  ],
+  "hideInEditor": false,
+  "category": "editor extensions",
+  "type": "library",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.0.1",
+    "com.xsolla.commerce-sdk": "3.0.1"
+  }
+}

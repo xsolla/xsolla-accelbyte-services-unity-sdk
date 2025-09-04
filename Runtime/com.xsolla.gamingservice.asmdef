@@ -1,0 +1,17 @@
+{
+    "name": "com.xsolla.gamingservice",
+    "rootNamespace": "",
+    "references": [
+        "GUID:95c7e4cb1e3deab4c9a29517591920ba",
+        "GUID:ae0cf701846f0cc4bbd067c4edd4fe90"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

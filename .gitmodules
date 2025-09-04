@@ -1,0 +1,6 @@
+[submodule "Plugins/com.AccelByte.SDK"]
+	path = Plugins/com.AccelByte.SDK
+	url = git@bitbucket.org:accelbyte/justice-unity-sdk-plugin.git
+[submodule "Plugins/com.AccelByte.Networking"]
+	path = Plugins/com.AccelByte.Networking
+	url = git@bitbucket.org:accelbyte/justice-unity-network-plugin.git
