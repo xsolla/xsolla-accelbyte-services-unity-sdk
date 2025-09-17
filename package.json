@@ -1,7 +1,7 @@
 {
   "name": "com.xsolla.xsollasdk",
   "displayName": "Xsolla Unity Gaming Service SDK",
-  "version": "2025.6",
+  "version": "2025.6.0",
   "unity": "2021.3",
   "keywords": [
     "third party",
@@ -9,6 +9,7 @@
     "multiplayer",
     "backend"
   ],
+  "author" : "Xsolla",
   "hideInEditor": false,
   "category": "editor extensions",
   "type": "library",
