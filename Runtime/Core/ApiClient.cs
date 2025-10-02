@@ -4,7 +4,7 @@
 
 using AccelByte.Api;
 
-namespace Xsolla.GamingService
+namespace Xsolla.Backend
 {
     [UnityEngine.Scripting.Preserve]
     public partial class ApiClient

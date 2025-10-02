@@ -2,7 +2,7 @@
 // This is licensed software from Xsolla Inc. Powered by AccelByte.
 // For limitation and restriction, contact your company contract manager.
 
-namespace Xsolla.GamingService
+namespace Xsolla.Backend
 {
     public class XsollaSDKToken
     {

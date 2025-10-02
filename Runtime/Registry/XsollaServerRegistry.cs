@@ -2,7 +2,7 @@
 // This is licensed software from Xsolla Inc. Powered by AccelByte.
 // For limitation and restriction, contact your company contract manager.
 
-namespace Xsolla.GamingService
+namespace Xsolla.Backend
 {
     [UnityEngine.Scripting.Preserve]
     public class XsollaServerRegistry
@@ -22,9 +22,9 @@ namespace Xsolla.GamingService
             registryImplementation = serverRegistry;
         }
         
-        public Xsolla.GamingService.ApiServer GetApi(string id = "DEFAULT")
+        public ApiServer GetApi(string id = "DEFAULT")
         {
-            Xsolla.GamingService.ApiServer serverApi = new ApiServer(registryImplementation.GetApi(id));
+            ApiServer serverApi = new ApiServer(registryImplementation.GetApi(id));
             return serverApi;
         }
 

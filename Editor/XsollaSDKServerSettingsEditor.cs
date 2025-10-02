@@ -5,11 +5,11 @@
 using UnityEditor;
 using AccelByte.Editor;
 
-namespace Xsolla.GamingService
+namespace Xsolla.Backend
 {
     public class XsollaSDKServerSettingsEditor : EditorWindow
     {
-        [MenuItem("Window/Xsolla/Gaming Services Server Settings")]
+        [MenuItem("Window/Xsolla/Edit Backend Server Settings")]
         public static void OpenWindow()
         {
             AccelByteServerSettingsEditor.OpenWindow();

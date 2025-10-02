@@ -1,12 +1,12 @@
-﻿namespace Xsolla.GamingService
+﻿namespace Xsolla.Backend
 {
     [UnityEngine.Scripting.Preserve]
-    public class XsollaSDKInstance
+    public class XsollaBackendSDKInstance
     {
         private XsollaClientRegistry clientRegistry;
         private XsollaServerRegistry serverRegistry;
         
-        public Xsolla.GamingService.XsollaClientRegistry GetClientRegistry()
+        public XsollaClientRegistry GetClientRegistry()
         {
             if (clientRegistry == null)
             {
@@ -15,7 +15,7 @@
             return clientRegistry;
         }
         
-        public Xsolla.GamingService.XsollaServerRegistry GetServerRegistry()
+        public XsollaServerRegistry GetServerRegistry()
         {
             if (serverRegistry == null)
             {

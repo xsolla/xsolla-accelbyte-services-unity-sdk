@@ -1,6 +1,6 @@
 {
-  "name": "com.xsolla.xsollasdk",
-  "displayName": "Xsolla Unity Gaming Service SDK",
+  "name": "com.xsolla.xsollabackendsdk",
+  "displayName": "Xsolla Backend SDK",
   "version": "2025.6.0",
   "unity": "2021.3",
   "keywords": [
@@ -9,10 +9,11 @@
     "multiplayer",
     "backend"
   ],
-  "author" : "Xsolla",
+  "author": "Xsolla",
   "hideInEditor": false,
   "category": "editor extensions",
   "type": "library",
+  "documentationUrl": "https://docs.gamingservices.xsolla.com/gaming-services/knowledge-base/sdk-tools/sdk-guides",
   "dependencies": {
     "com.unity.nuget.newtonsoft-json": "3.0.1",
     "com.xsolla.commerce-sdk": "3.0.1"

@@ -5,7 +5,7 @@
 using AccelByte.Core;
 using AccelByte.Models;
 
-namespace Xsolla.GamingService
+namespace Xsolla.Backend
 {
     [UnityEngine.Scripting.Preserve]
     public class XsollaAuthApi : ApiBase

@@ -6,7 +6,7 @@ using AccelByte.Api;
 using AccelByte.Core;
 using AccelByte.Models;
 
-namespace Xsolla.GamingService
+namespace Xsolla.Backend
 {
     [UnityEngine.Scripting.Preserve]
     public class XsollaAuth : AccelByte.Core.WrapperBase
@@ -31,13 +31,13 @@ namespace Xsolla.GamingService
             userWrapper = createCommand.AccelByteUser;
         }
 
-        public void AuthBySavedToken(ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+        public void AuthBySavedToken(ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             AuthBySavedToken(null, callback);
         }
 
         public void AuthBySavedToken(OptionalParametersBase optionalParameter,
-            ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+            ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             System.Action<Xsolla.Core.Error> onError = (error) =>
             {
@@ -55,13 +55,13 @@ namespace Xsolla.GamingService
             Xsolla.Auth.XsollaAuth.AuthBySavedToken(onSuccess, onError);
         }
 
-        public void AuthWithXsollaWidget(ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+        public void AuthWithXsollaWidget(ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             AuthWithXsollaWidget(null, callback);
         }
 
         public void AuthWithXsollaWidget(OptionalParametersBase optionalParameter,
-            ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+            ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             System.Action<Xsolla.Core.Error> onError = (error) =>
             {
@@ -88,13 +88,13 @@ namespace Xsolla.GamingService
             Xsolla.Auth.XsollaAuth.AuthWithXsollaWidget(onSuccess, onError, oncancel);
         }
 
-        public void AuthViaXsollaLauncher(ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+        public void AuthViaXsollaLauncher(ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             AuthViaXsollaLauncher(null, callback);
         }
 
         public void AuthViaXsollaLauncher(OptionalParametersBase optionalParameter,
-            ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+            ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             System.Action<Xsolla.Core.Error> onError = (error) =>
             {
@@ -113,13 +113,13 @@ namespace Xsolla.GamingService
         }
 
         public void AuthViaSocialNetwork(Xsolla.Core.SocialProvider socialProvider,
-            ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+            ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             AuthViaSocialNetwork(socialProvider, null, callback);
         }
 
         public void AuthViaSocialNetwork(Xsolla.Core.SocialProvider socialProvider,
-            OptionalParametersBase optionalParameter, ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+            OptionalParametersBase optionalParameter, ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             System.Action<Xsolla.Core.Error> onError = (error) =>
             {
@@ -157,7 +157,7 @@ namespace Xsolla.GamingService
             Xsolla.Auth.XsollaAuth.Logout(onSuccess, onError);
         }
 
-        public void SilentAuth(string providerName, string appId, string sessionTicket, ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+        public void SilentAuth(string providerName, string appId, string sessionTicket, ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             System.Action<Xsolla.Core.Error> onError = (error) =>
             {
@@ -184,13 +184,13 @@ namespace Xsolla.GamingService
             Xsolla.Auth.XsollaAuth.SilentAuth(providerName, appId, sessionTicket, onSuccess, onError);
         }
 
-        public void AuthWithXsollaAccessToken(string xsollaAccessToken, ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+        public void AuthWithXsollaAccessToken(string xsollaAccessToken, ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             LoginToGamingService(xsollaAccessToken, callback);
         }
 
         private void LoginToGamingService(string accessToken,
-            ResultCallback<Xsolla.GamingService.XsollaSDKToken, OAuthError> callback)
+            ResultCallback<XsollaSDKToken, OAuthError> callback)
         {
             AccelByte.Core.ResultCallback<AccelByte.Models.TokenData, AccelByte.Models.OAuthError>
                 accelByteLoginCallback = (loginResult) =>
@@ -201,7 +201,7 @@ namespace Xsolla.GamingService
                         return;
                     }
 
-                    var callbackToken = new Xsolla.GamingService.XsollaSDKToken()
+                    var callbackToken = new XsollaSDKToken()
                     {
                         XsollaAccessToken = accessToken, GamingServiceToken = loginResult.Value
                     };
