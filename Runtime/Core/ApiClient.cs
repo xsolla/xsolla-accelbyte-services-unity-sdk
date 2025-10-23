@@ -191,5 +191,10 @@ namespace Xsolla.Backend
         {
             return accelByteApi.GetStoreDisplayService();
         }
+
+        public AccelByte.Core.ApiClient Get()
+        {
+            return accelByteApi;
+        }
     }
 }

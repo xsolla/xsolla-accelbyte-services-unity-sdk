@@ -22,6 +22,16 @@ namespace Xsolla.Backend
             registryImplementation = clientRegistry;
         }
         
+        public AccelByte.Api.GameStandardAnalyticsClientService GetGameStandardEvents()
+        {
+            return registryImplementation.GetGameStandardEvents();
+        }
+        
+        public AccelByte.Core.PresenceBroadcastEventScheduler GetPresenceBroadcastEvent()
+        {
+            return registryImplementation.GetPresenceBroadcastEvent();
+        }
+        
         public ApiClient GetApi(string id = "default")
         {
             ApiClient clientApi = new ApiClient(registryImplementation.GetApi(id));
