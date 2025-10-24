@@ -23,5 +23,14 @@
             }
             return serverRegistry;
         }
+        public AccelByte.Models.Config GetClientConfig()
+        {
+            return AccelByte.Core.AccelByteSDK.GetClientConfig();
+        }
+
+        public AccelByte.Models.ServerConfig GetServerConfig()
+        {
+            return AccelByte.Core.AccelByteSDK.GetServerConfig();
+        }
     }
 }
