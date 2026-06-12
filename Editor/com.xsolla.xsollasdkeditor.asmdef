@@ -2,7 +2,8 @@
     "name": "com.xsolla.xsollasdkeditor",
     "rootNamespace": "",
     "references": [
-        "GUID:f289aecd601083b43bee6666d08cde68"
+        "GUID:f289aecd601083b43bee6666d08cde68",
+        "GUID:f43f302c37606f240a3f2f1bb8d93e1c"
     ],
     "includePlatforms": [
         "Editor"

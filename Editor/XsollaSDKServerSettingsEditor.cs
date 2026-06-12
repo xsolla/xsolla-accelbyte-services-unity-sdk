@@ -3,7 +3,6 @@
 // For limitation and restriction, contact your company contract manager.
 
 using UnityEditor;
-using AccelByte.Editor;
 
 namespace Xsolla.Backend
 {
@@ -12,7 +11,7 @@ namespace Xsolla.Backend
         [MenuItem("Window/Xsolla/Edit Backend Server Settings")]
         public static void OpenWindow()
         {
-            AccelByteServerSettingsEditor.OpenWindow();
+            XsollaConfigEditorWindow.OpenWindow();
         }
     }
 }
