@@ -24,6 +24,7 @@ namespace Xsolla.Backend
         private XsollaConfig config;
         private SerializedObject serializedConfig;
         private Vector2 scrollPos;
+        private bool hasUnsavedChanges;
 
         [MenuItem("Xsolla/Backend SDK/Settings")]
         public static void OpenWindow()
@@ -78,6 +79,8 @@ namespace Xsolla.Backend
             {
                 serializedConfig = null;
             }
+
+            hasUnsavedChanges = false;
         }
 
         private void CreateConfigAsset()
@@ -162,6 +165,11 @@ namespace Xsolla.Backend
             DrawFooter();
 
             EditorGUILayout.EndVertical();
+
+            if (serializedConfig.ApplyModifiedProperties())
+            {
+                hasUnsavedChanges = true;
+            }
         }
 
         // ──────────────────────────────────────────────
@@ -242,7 +250,7 @@ namespace Xsolla.Backend
 
         private void DrawFooter()
         {
-            if (serializedConfig.hasModifiedProperties)
+            if (hasUnsavedChanges)
             {
                 EditorGUILayout.HelpBox("Unsaved changes", MessageType.Warning, wide: true);
             }
@@ -253,9 +261,9 @@ namespace Xsolla.Backend
 
             if (GUILayout.Button("Save"))
             {
-                serializedConfig.ApplyModifiedProperties();
                 EditorUtility.SetDirty(config);
                 AssetDatabase.SaveAssets();
+                hasUnsavedChanges = false;
                 Debug.Log("Xsolla Backend SDK config saved.");
             }
 
