@@ -66,6 +66,16 @@ namespace Xsolla.Backend
             SetStringField(args, "PublisherNamespace", config.PublisherNamespace);
             SetStringField(args, "RedirectUri", config.RedirectUri);
 
+            // When a BaseUrl is provided, force all service URLs (IamServerUrl,
+            // PlatformServerUrl, LobbyServerUrl, etc.) to be re-derived from it
+            // via Config.Expand(true). Without this, IamServerUrl stays empty and
+            // the AccelByte HTTP client resolves IAM paths against the base URI,
+            // stripping the required /iam prefix from every IAM request.
+            if (!string.IsNullOrEmpty(config.BaseUrl))
+            {
+                SetField(args, "OverrideServiceUrl", (bool?)true);
+            }
+
             // TURN / relay fields.
             SetField(args, "UseTurnManager", (bool?)config.UseTurnManager);
             SetStringField(args, "TurnManagerServerUrl", config.TurnManagerServerUrl);
