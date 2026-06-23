@@ -21,7 +21,7 @@
         /// <see cref="XsollaBackendSDK.Configure"/> takes priority; otherwise
         /// the asset is loaded from <c>Resources/XsollaConfig</c>.
         /// </summary>
-        private static void EnsureConfigApplied()
+        internal static void EnsureConfigApplied()
         {
             if (configApplied)
             {

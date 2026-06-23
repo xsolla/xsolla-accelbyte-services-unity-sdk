@@ -22,6 +22,18 @@ namespace Xsolla.Backend
         private static void ResetStaticMembers()
         {
             ProgrammaticConfig = null;
+            Instance = new XsollaBackendSDKInstance();
+        }
+
+        [UnityEngine.RuntimeInitializeOnLoadMethod(
+            UnityEngine.RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InitializeBeforeSceneLoad()
+        {
+            // Write Xsolla overrides into AccelByteSDK.Implementation.OverrideConfigs
+            // before any scene MonoBehaviour Awake() can call
+            // AccelByteSDK.GetClientRegistry(), which would otherwise create the
+            // registry with empty credentials.
+            XsollaBackendSDKInstance.EnsureConfigApplied();
         }
 
         /// <summary>
