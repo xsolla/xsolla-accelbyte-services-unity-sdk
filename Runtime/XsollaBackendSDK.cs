@@ -6,7 +6,13 @@ namespace Xsolla.Backend
 
         static XsollaBackendSDK()
         {
-            Instance = null;
+            Instance = new XsollaBackendSDKInstance();
+        }
+
+        [UnityEngine.RuntimeInitializeOnLoadMethod(
+            UnityEngine.RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStaticMembers()
+        {
             Instance = new XsollaBackendSDKInstance();
         }
     }

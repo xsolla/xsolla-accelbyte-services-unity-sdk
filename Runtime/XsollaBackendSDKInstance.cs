@@ -1,11 +1,11 @@
-﻿namespace Xsolla.Backend
+namespace Xsolla.Backend
 {
     [UnityEngine.Scripting.Preserve]
     public class XsollaBackendSDKInstance
     {
         private XsollaClientRegistry clientRegistry;
         private XsollaServerRegistry serverRegistry;
-        
+
         public XsollaClientRegistry GetClientRegistry()
         {
             if (clientRegistry == null)
@@ -14,7 +14,7 @@
             }
             return clientRegistry;
         }
-        
+
         public XsollaServerRegistry GetServerRegistry()
         {
             if (serverRegistry == null)
@@ -23,6 +23,7 @@
             }
             return serverRegistry;
         }
+
         public AccelByte.Models.Config GetClientConfig()
         {
             return AccelByte.Core.AccelByteSDK.GetClientConfig();
