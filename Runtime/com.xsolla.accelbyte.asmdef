@@ -1,6 +1,6 @@
 {
-    "name": "com.xsolla.xsollabackendsdk",
-    "rootNamespace": "",
+    "name": "Xsolla.AccelByte",
+    "rootNamespace": "Xsolla.AccelByte",
     "references": [
         "GUID:95c7e4cb1e3deab4c9a29517591920ba",
         "GUID:ae0cf701846f0cc4bbd067c4edd4fe90"

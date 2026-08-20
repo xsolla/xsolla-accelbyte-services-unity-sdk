@@ -1,215 +1,130 @@
-﻿// Copyright (c) 2025 Xsolla Inc. All Rights Reserved.
+// Copyright (c) 2025-2026 Xsolla Inc. All Rights Reserved.
 // This is licensed software from Xsolla Inc. Powered by AccelByte.
 // For limitation and restriction, contact your company contract manager.
 
+using System;
 using AccelByte.Api;
 using AccelByte.Core;
 using AccelByte.Models;
 
-namespace Xsolla.Backend
+namespace Xsolla.AccelByte
 {
     [UnityEngine.Scripting.Preserve]
-    public class XsollaAuth : AccelByte.Core.WrapperBase
+    public class XsollaAuth : IXsollaAccelByteAuth
     {
-        private readonly XsollaAuthApi api;
-        private readonly CoroutineRunner coroutineRunner;
-        private readonly UserSession session;
-        private User userWrapper;
-        private string xsollaPlatformId;
+        private const string XsollaPlatformId = "xsolla";
+
+        private readonly User user;
 
         [UnityEngine.Scripting.Preserve]
-        public XsollaAuth(XsollaAuthApi inApi, UserSession inLoginSession, CoroutineRunner inCoroutineRunner)
+        public XsollaAuth()
+            : this(AccelByteSDK.GetClientRegistry().GetApi().GetUser())
         {
-            api = inApi;
-            coroutineRunner = inCoroutineRunner;
-            session = inLoginSession;
         }
 
-        internal void CreateCommand(XsollaAuthCreateCommand createCommand)
+        [UnityEngine.Scripting.Preserve]
+        public XsollaAuth(User user)
         {
-            xsollaPlatformId = createCommand.XsollaPlatformId;
-            userWrapper = createCommand.AccelByteUser;
+            this.user = user ?? throw new ArgumentNullException(nameof(user));
         }
 
-        public void AuthBySavedToken(ResultCallback<XsollaSDKToken, OAuthError> callback)
+        public void LoginWithXsollaAccount(ResultCallback<TokenData, OAuthError> callback)
         {
-            AuthBySavedToken(null, callback);
-        }
-
-        public void AuthBySavedToken(OptionalParametersBase optionalParameter,
-            ResultCallback<XsollaSDKToken, OAuthError> callback)
-        {
-            System.Action<Xsolla.Core.Error> onError = (error) =>
+            System.Action<Xsolla.Core.Error> onError = error =>
             {
-                callback?.TryError(new OAuthError()
-                {
-                    error = error.errorCode, error_description = error.ToJsonString()
-                });
+                callback?.TryError(ToOAuthError(error));
             };
 
-            System.Action onSuccess = () =>
+            System.Action onCancel = () =>
             {
-                string accessToken = Xsolla.Core.XsollaToken.AccessToken;
-                LoginToGamingService(accessToken, callback);
-            };
-            Xsolla.Auth.XsollaAuth.AuthBySavedToken(onSuccess, onError);
-        }
-
-        public void AuthWithXsollaWidget(ResultCallback<XsollaSDKToken, OAuthError> callback)
-        {
-            AuthWithXsollaWidget(null, callback);
-        }
-
-        public void AuthWithXsollaWidget(OptionalParametersBase optionalParameter,
-            ResultCallback<XsollaSDKToken, OAuthError> callback)
-        {
-            System.Action<Xsolla.Core.Error> onError = (error) =>
-            {
-                callback?.TryError(new OAuthError()
+                callback?.TryError(new OAuthError
                 {
-                    error = error.errorCode, error_description = error.ToJsonString()
-                });
-            };
-
-            System.Action oncancel = () =>
-            {
-                callback?.TryError(new OAuthError()
-                {
-                    error = ((int)AccelByte.Core.ErrorCode.ExpectationFailed).ToString(),
+                    error = ((int)ErrorCode.ExpectationFailed).ToString(),
                     error_description = "Cancelled"
                 });
             };
 
             System.Action onSuccess = () =>
             {
-                string accessToken = Xsolla.Core.XsollaToken.AccessToken;
-                LoginToGamingService(accessToken, callback);
+                LoginWithXsollaAccessToken(Xsolla.Core.XsollaToken.AccessToken, callback);
             };
-            Xsolla.Auth.XsollaAuth.AuthWithXsollaWidget(onSuccess, onError, oncancel);
+
+            Xsolla.Auth.XsollaAuth.AuthWithXsollaWidget(onSuccess, onError, onCancel);
         }
 
-        public void AuthViaXsollaLauncher(ResultCallback<XsollaSDKToken, OAuthError> callback)
+        public void LoginWithXsollaSilentAuth(
+            string providerName,
+            string appId,
+            string sessionTicket,
+            ResultCallback<TokenData, OAuthError> callback)
         {
-            AuthViaXsollaLauncher(null, callback);
-        }
-
-        public void AuthViaXsollaLauncher(OptionalParametersBase optionalParameter,
-            ResultCallback<XsollaSDKToken, OAuthError> callback)
-        {
-            System.Action<Xsolla.Core.Error> onError = (error) =>
+            System.Action<Xsolla.Core.Error> onError = error =>
             {
-                callback?.TryError(new OAuthError()
-                {
-                    error = error.errorCode, error_description = error.ToJsonString()
-                });
+                callback?.TryError(ToOAuthError(error));
             };
 
             System.Action onSuccess = () =>
             {
-                string accessToken = Xsolla.Core.XsollaToken.AccessToken;
-                LoginToGamingService(accessToken, callback);
-            };
-            Xsolla.Auth.XsollaAuth.AuthViaXsollaLauncher(onSuccess, onError);
-        }
-
-        public void AuthViaSocialNetwork(Xsolla.Core.SocialProvider socialProvider,
-            ResultCallback<XsollaSDKToken, OAuthError> callback)
-        {
-            AuthViaSocialNetwork(socialProvider, null, callback);
-        }
-
-        public void AuthViaSocialNetwork(Xsolla.Core.SocialProvider socialProvider,
-            OptionalParametersBase optionalParameter, ResultCallback<XsollaSDKToken, OAuthError> callback)
-        {
-            System.Action<Xsolla.Core.Error> onError = (error) =>
-            {
-                callback?.TryError(new OAuthError()
-                {
-                    error = error.errorCode, error_description = error.ToJsonString()
-                });
+                LoginWithXsollaAccessToken(Xsolla.Core.XsollaToken.AccessToken, callback);
             };
 
-            System.Action oncancel = () =>
-            {
-                callback?.TryError(new OAuthError()
-                {
-                    error = ((int)AccelByte.Core.ErrorCode.ExpectationFailed).ToString(),
-                    error_description = "Cancelled"
-                });
-            };
-
-            System.Action onSuccess = () =>
-            {
-                string accessToken = Xsolla.Core.XsollaToken.AccessToken;
-                LoginToGamingService(accessToken, callback);
-            };
-            Xsolla.Auth.XsollaAuth.AuthViaSocialNetwork(socialProvider, onSuccess, onError, oncancel);
-        }
-
-        public void LogOut(ResultCallback callback)
-        {
-            System.Action<Xsolla.Core.Error> onError = (error) =>
-            {
-                callback?.TryError(ErrorCode.None, error.ToJsonString());
-            };
-
-            System.Action onSuccess = () => { userWrapper.Logout(callback); };
-            Xsolla.Auth.XsollaAuth.Logout(onSuccess, onError);
-        }
-
-        public void SilentAuth(string providerName, string appId, string sessionTicket, ResultCallback<XsollaSDKToken, OAuthError> callback)
-        {
-            System.Action<Xsolla.Core.Error> onError = (error) =>
-            {
-                callback?.TryError(new OAuthError()
-                {
-                    error = error.errorCode, error_description = error.ToJsonString()
-                });
-            };
-
-            System.Action oncancel = () =>
-            {
-                callback?.TryError(new OAuthError()
-                {
-                    error = ((int)AccelByte.Core.ErrorCode.ExpectationFailed).ToString(),
-                    error_description = "Cancelled"
-                });
-            };
-
-            System.Action onSuccess = () =>
-            {
-                string accessToken = Xsolla.Core.XsollaToken.AccessToken;
-                LoginToGamingService(accessToken, callback);
-            };
             Xsolla.Auth.XsollaAuth.SilentAuth(providerName, appId, sessionTicket, onSuccess, onError);
         }
 
-        public void AuthWithXsollaAccessToken(string xsollaAccessToken, ResultCallback<XsollaSDKToken, OAuthError> callback)
+        public void LoginWithXsollaAccessToken(
+            string xsollaAccessToken,
+            ResultCallback<TokenData, OAuthError> callback)
         {
-            LoginToGamingService(xsollaAccessToken, callback);
+            user.LoginWithOtherPlatformV4(
+                new LoginPlatformType(XsollaPlatformId),
+                xsollaAccessToken,
+                callback);
         }
 
-        private void LoginToGamingService(string accessToken,
-            ResultCallback<XsollaSDKToken, OAuthError> callback)
+        public void Logout(ResultCallback callback)
         {
-            AccelByte.Core.ResultCallback<AccelByte.Models.TokenData, AccelByte.Models.OAuthError>
-                accelByteLoginCallback = (loginResult) =>
+            Xsolla.Core.Error xsollaLogoutError = null;
+
+            void LogoutFromAccelByte()
+            {
+                user.Logout(result =>
                 {
-                    if (loginResult.IsError)
+                    if (result.IsError)
                     {
-                        callback?.TryError(loginResult.Error);
+                        callback?.Invoke(result);
                         return;
                     }
 
-                    var callbackToken = new XsollaSDKToken()
+                    if (xsollaLogoutError != null)
                     {
-                        XsollaAccessToken = accessToken, GamingServiceToken = loginResult.Value
-                    };
+                        UnityEngine.Debug.LogWarning($"Xsolla logout failed after AGS logout succeeded: {xsollaLogoutError.ToJsonString()}");
+                    }
 
-                    callback?.TryOk(callbackToken);
-                };
-            userWrapper.LoginWithOtherPlatformV4(new LoginPlatformType(xsollaPlatformId), accessToken,
-                accelByteLoginCallback);
+                    callback?.Invoke(result);
+                });
+            }
+
+            System.Action<Xsolla.Core.Error> onError = error =>
+            {
+                xsollaLogoutError = error;
+                LogoutFromAccelByte();
+            };
+
+            System.Action onSuccess = () =>
+            {
+                LogoutFromAccelByte();
+            };
+
+            Xsolla.Auth.XsollaAuth.Logout(onSuccess, onError);
+        }
+
+        private static OAuthError ToOAuthError(Xsolla.Core.Error error)
+        {
+            return new OAuthError
+            {
+                error = error.errorCode,
+                error_description = error.ToJsonString()
+            };
         }
     }
 }

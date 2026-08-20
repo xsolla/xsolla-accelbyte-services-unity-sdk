@@ -1,13 +1,14 @@
 {
-  "name": "com.xsolla.xsollabackendsdk",
-  "displayName": "Xsolla Backend SDK",
+  "name": "com.xsolla.accelbyte",
+  "displayName": "Xsolla AccelByte SDK",
   "version": "2026.6.0",
   "unity": "2021.3",
   "keywords": [
     "third party",
     "services",
     "multiplayer",
-    "backend"
+    "accelbyte",
+    "auth"
   ],
   "author": "Xsolla",
   "hideInEditor": false,

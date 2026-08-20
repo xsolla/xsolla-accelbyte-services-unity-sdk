@@ -1,6 +1,8 @@
-# Xsolla Backend SDK
+# Xsolla AccelByte SDK
 
-A Unity package (`com.xsolla.xsollabackendsdk`) that bridges [Xsolla's commerce SDK](https://github.com/xsolla/store-unity-sdk) with [AccelByte's gaming services SDK](https://github.com/AccelByte/accelbyte-unity-sdk). It lets a game built on Xsolla's storefront authenticate players into AccelByte's backend services (lobby, matchmaking, sessions, stats, and more) using a Xsolla access token.
+A Unity package (`com.xsolla.accelbyte`) that bridges [Xsolla's commerce SDK](https://github.com/xsolla/store-unity-sdk) authentication into [AccelByte Gaming Services](https://github.com/AccelByte/accelbyte-unity-sdk).
+
+This package keeps AccelByte as the game backend SDK and adds a focused Xsolla authentication bridge. It does not replace or mirror the wider AccelByte SDK API surface.
 
 ## Requirements
 
@@ -10,7 +12,7 @@ A Unity package (`com.xsolla.xsollabackendsdk`) that bridges [Xsolla's commerce 
 
 ## Installation
 
-This package embeds the AccelByte SDKs as git submodules, so clone (or add as a submodule) rather than downloading a zip:
+This package embeds the AccelByte SDKs as git submodules, so clone or add as a submodule rather than downloading a zip:
 
 ```bash
 git submodule update --init --recursive
@@ -18,33 +20,36 @@ git submodule update --init --recursive
 
 Then import the package into your Unity project via the Package Manager (`Window > Package Manager > + > Add package from disk...`, pointing at this package's `package.json`), or reference it by git URL/local path in your project's `manifest.json`.
 
-## Configuring the SDK
+## Configuring The SDK
 
-Configuration is done entirely through the Xsolla-branded editor windows, which write directly into the underlying AccelByte SDK config files — there's no separate config asset to manage. From the Unity Editor's menu bar, go to:
+AccelByte configuration uses the official AccelByte SDK config files and editor windows. From the Unity Editor's menu bar, use the AccelByte settings entries:
 
-- `Xsolla > Backend SDK > Edit Client Settings` — client-side config (base URL, redirect URI, namespace, OAuth client, service URLs, etc.)
-- `Xsolla > Backend SDK > Edit Server Settings` — dedicated server config
+- `AccelByte > Edit Client Settings` - client-side config (base URL, redirect URI, namespace, OAuth client, service URLs, etc.)
+- `AccelByte > Edit Server Settings` - dedicated server config
 
-AccelByte's own settings menu items are hidden to avoid confusion; use the Xsolla windows above instead.
+Xsolla widget/login configuration is managed by the official Xsolla SDK through `Resources/XsollaSettings`.
 
 ## Usage
 
-All access goes through the `XsollaBackendSDK` singleton:
+Use the AccelByte SDK normally for backend services. Xsolla auth is exposed as an extension on the AccelByte client API:
 
 ```csharp
-// Client-side (player)
-var clientApi = XsollaBackendSDK.Instance.GetClientRegistry().GetApi();
+using AccelByte.Core;
+using Xsolla.AccelByte;
 
-// Server-side (dedicated server)
-var serverApi = XsollaBackendSDK.Instance.GetServerRegistry().GetApi();
+var xsollaAuth = AccelByteSDK.GetClientRegistry().GetApi().GetXsollaAuth();
 ```
 
-### Authenticating with a Xsolla token
-
-`ApiClient.GetXsollaAuth()` is the SDK's one Xsolla-specific feature: it exchanges a Xsolla access token for an AccelByte session.
+The package also provides a high-level convenience facade:
 
 ```csharp
-clientApi.GetXsollaAuth().AuthWithXsollaWidget((result) =>
+XsollaAccelByteSDK.Auth.LoginWithXsollaAccount(callback);
+```
+
+### Authenticating With Xsolla
+
+```csharp
+AccelByteSDK.GetClientRegistry().GetApi().GetXsollaAuth().LoginWithXsollaAccount(result =>
 {
     if (result.IsError)
     {
@@ -52,12 +57,8 @@ clientApi.GetXsollaAuth().AuthWithXsollaWidget((result) =>
         return;
     }
 
-    // result.Value.XsollaAccessToken   -> the Xsolla token
-    // result.Value.GamingServiceToken  -> the AccelByte TokenData
+    // result.Value is the AccelByte TokenData.
 });
 ```
 
-`XsollaAuth` also exposes `AuthBySavedToken`, `AuthViaXsollaLauncher`, `AuthViaSocialNetwork`, `SilentAuth`, `AuthWithXsollaAccessToken`, and `LogOut`.
-
-Every other AccelByte service (lobby, session, stats, leaderboards, etc.) is available unchanged through `ApiClient` / `ApiServer`, or via `.Get()` on either for the raw AccelByte type.
-
+`XsollaAuth` also exposes `LoginWithXsollaSilentAuth`, `LoginWithXsollaAccessToken`, and `Logout`.
