@@ -62,3 +62,35 @@ AccelByteSDK.GetClientRegistry().GetApi().GetXsollaAuth().LoginWithXsollaAccount
 ```
 
 `XsollaAuth` also exposes `LoginWithXsollaSilentAuth`, `LoginWithXsollaAccessToken`, and `Logout`.
+
+### Authenticating With Xsolla ID
+
+Xsolla ID login needs the game namespace to use Xsolla ID in the AGS Admin Portal (**Identity & Access > Xsolla Authentication**), with the same Client ID as below. While Xsolla ID is active, AGS rejects Xsolla Login tokens for that namespace.
+
+If the game already has an Xsolla ID `id_token`, for example from the Xsolla ID web SDK in a WebGL build, log in with it on any platform:
+
+```csharp
+XsollaAccelByteSDK.Auth.LoginWithXsollaIdToken(idToken, callback);
+```
+
+To run the whole login, call `LoginWithXsollaId` on the main thread. It opens the system browser on the Xsolla ID login page, receives the authorization code on a loopback listener at `http://127.0.0.1:<port><path>`, exchanges it with PKCE, checks the `id_token`, and logs in to AGS. It works in Windows, Mac and Linux standalone builds and in the Editor.
+
+```csharp
+var options = new XsollaIdOptions
+{
+    ClientId = "<XSOLLA_ID_CLIENT_ID>",
+    // Optional, defaults shown
+    Issuer = "https://id.xsolla.com",
+    Scope = "openid",
+    RedirectHost = "127.0.0.1",
+    RedirectPort = 0,
+    RedirectPath = "/callback",
+    LoginTimeoutSeconds = 300
+};
+
+XsollaAccelByteSDK.Auth.LoginWithXsollaId(options, callback);
+```
+
+The wrapper cannot detect a closed browser tab, so call `CancelXsollaIdLogin()` to stop a pending login; the callback then receives the cancelled error.
+
+The redirect URI `http://<host>:<port><path>` must be registered for the Xsolla ID client. `RedirectPort = 0` lets the OS pick a free port; use it only if the client accepts any loopback port, otherwise set the registered port. Keep `RedirectHost = "127.0.0.1"` as RFC 8252 recommends; set `"localhost"` only to match a redirect URI that is registered with `localhost`, for example during testing. The listener always binds `127.0.0.1`. Add `profile email` to `Scope` to fill the AGS display name and email from the Xsolla ID account.

@@ -13,8 +13,10 @@ namespace Xsolla.AccelByte
     public class XsollaAuth : IXsollaAccelByteAuth
     {
         private const string XsollaPlatformId = "xsolla";
+        private const string XsollaIdPlatformId = "xsollaid";
 
         private readonly User user;
+        private XsollaIdAuthFlow xsollaIdFlow;
 
         [UnityEngine.Scripting.Preserve]
         public XsollaAuth()
@@ -79,6 +81,83 @@ namespace Xsolla.AccelByte
                 new LoginPlatformType(XsollaPlatformId),
                 xsollaAccessToken,
                 callback);
+        }
+
+        public void LoginWithXsollaIdToken(
+            string idToken,
+            ResultCallback<TokenData, OAuthError> callback)
+        {
+            if (string.IsNullOrEmpty(idToken))
+            {
+                callback?.TryError(new OAuthError
+                {
+                    error = "xsolla-id-token-empty",
+                    error_description = "Xsolla ID id_token is empty."
+                });
+                return;
+            }
+
+            user.LoginWithOtherPlatformV4(
+                new LoginPlatformType(XsollaIdPlatformId),
+                idToken,
+                callback);
+        }
+
+        public void LoginWithXsollaId(
+            XsollaIdOptions options,
+            ResultCallback<TokenData, OAuthError> callback)
+        {
+            if (xsollaIdFlow != null)
+            {
+                callback?.TryError(new OAuthError
+                {
+                    error = "xsolla-login-in-progress",
+                    error_description = "A Xsolla ID login is already in progress."
+                });
+                return;
+            }
+
+            var flow = new XsollaIdAuthFlow();
+            xsollaIdFlow = flow;
+
+            void ReleaseFlow()
+            {
+                if (xsollaIdFlow == flow)
+                {
+                    xsollaIdFlow = null;
+                }
+            }
+
+            flow.Start(
+                options,
+                tokens =>
+                {
+                    ReleaseFlow();
+                    LoginWithXsollaIdToken(tokens.IdToken, callback);
+                },
+                (code, description) =>
+                {
+                    ReleaseFlow();
+                    callback?.TryError(new OAuthError
+                    {
+                        error = code,
+                        error_description = description
+                    });
+                },
+                () =>
+                {
+                    ReleaseFlow();
+                    callback?.TryError(new OAuthError
+                    {
+                        error = ((int)ErrorCode.ExpectationFailed).ToString(),
+                        error_description = "Cancelled"
+                    });
+                });
+        }
+
+        public void CancelXsollaIdLogin()
+        {
+            xsollaIdFlow?.Cancel();
         }
 
         public void Logout(ResultCallback callback)

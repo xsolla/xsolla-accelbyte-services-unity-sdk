@@ -21,6 +21,26 @@ namespace Xsolla.AccelByte
             string xsollaAccessToken,
             ResultCallback<TokenData, OAuthError> callback);
 
+        /// <summary>
+        /// Logs in to AGS with an Xsolla ID id_token that the game already has, for example from the Xsolla ID web SDK.
+        /// </summary>
+        void LoginWithXsollaIdToken(
+            string idToken,
+            ResultCallback<TokenData, OAuthError> callback);
+
+        /// <summary>
+        /// Logs in with Xsolla ID in the system browser (authorization code flow with PKCE), then logs in to AGS.
+        /// Windows, Mac and Linux standalone builds and the Editor only. Call it on the main thread.
+        /// </summary>
+        void LoginWithXsollaId(
+            XsollaIdOptions options,
+            ResultCallback<TokenData, OAuthError> callback);
+
+        /// <summary>
+        /// Stops a LoginWithXsollaId that waits for the browser. Its callback receives the cancelled error.
+        /// </summary>
+        void CancelXsollaIdLogin();
+
         void Logout(ResultCallback callback);
     }
 }
