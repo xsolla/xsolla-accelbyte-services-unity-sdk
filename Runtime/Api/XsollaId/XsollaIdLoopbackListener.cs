@@ -32,23 +32,26 @@ namespace Xsolla.AccelByte
 
         private TcpListener listener;
         private string redirectPath;
-        private Func<Dictionary<string, string>, bool> isSuccessfulCallback;
+        private string expectedState;
         private bool disposed;
 
         public int Port { get; private set; }
 
-        /// <summary>Binds to 127.0.0.1, not localhost, so the redirect cannot reach another interface (RFC 8252 section 8.3).</summary>
-        public void Start(int port, string path, Func<Dictionary<string, string>, bool> isSuccessful)
+        /// <summary>
+        /// Binds to 127.0.0.1, not localhost, so the redirect cannot reach another interface (RFC 8252 section 8.3).
+        /// Only a request whose state equals <paramref name="state"/> completes the wait, so a stray or forged request cannot end the login.
+        /// </summary>
+        public void Start(int port, string path, string state)
         {
             redirectPath = path;
-            isSuccessfulCallback = isSuccessful;
+            expectedState = state;
             listener = new TcpListener(IPAddress.Loopback, port);
             listener.Start();
             Port = ((IPEndPoint)listener.LocalEndpoint).Port;
             _ = AcceptLoopAsync();
         }
 
-        /// <summary>Completes with the query parameters of the first request to the redirect path.</summary>
+        /// <summary>Completes with the query parameters of the first request to the redirect path that carries the expected state.</summary>
         public Task<Dictionary<string, string>> WaitForCallbackAsync()
         {
             return callback.Task;
@@ -65,8 +68,9 @@ namespace Xsolla.AccelByte
             {
                 listener?.Stop();
             }
-            catch (SocketException)
+            catch (Exception)
             {
+                // Best-effort cleanup; Dispose must not throw.
             }
             callback.TrySetCanceled();
         }
@@ -125,7 +129,14 @@ namespace Xsolla.AccelByte
                     }
 
                     Dictionary<string, string> parameters = XsollaIdProtocol.ParseQuery(query);
-                    bool isSuccessful = isSuccessfulCallback == null || isSuccessfulCallback(parameters);
+                    if (!parameters.TryGetValue("state", out string state) || state != expectedState)
+                    {
+                        // Not this login, for example a tab left from an earlier attempt. Keep waiting for the real callback.
+                        await WriteResponseAsync(stream, "400 Bad Request", FailurePage).ConfigureAwait(false);
+                        return;
+                    }
+
+                    bool isSuccessful = !parameters.ContainsKey("error") && parameters.ContainsKey("code");
                     await WriteResponseAsync(stream, isSuccessful ? "200 OK" : "400 Bad Request", isSuccessful ? SuccessPage : FailurePage).ConfigureAwait(false);
                     callback.TrySetResult(parameters);
                 }

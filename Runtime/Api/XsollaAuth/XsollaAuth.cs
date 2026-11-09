@@ -176,7 +176,7 @@ namespace Xsolla.AccelByte
 
                     if (xsollaLogoutError != null)
                     {
-                        UnityEngine.Debug.LogWarning($"Xsolla logout failed after AGS logout succeeded: {xsollaLogoutError.ToJsonString()}");
+                        AccelByteDebug.LogWarning($"Xsolla logout failed after AGS logout succeeded: {xsollaLogoutError.ToJsonString()}");
                     }
 
                     callback?.Invoke(result);

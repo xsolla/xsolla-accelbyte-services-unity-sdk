@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using AccelByte.Core;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -36,6 +37,10 @@ namespace Xsolla.AccelByte
         public const string AuthorizationFailedCode = "xsolla-id-authorization-failed";
         public const string TokenExchangeFailedCode = "xsolla-id-token-exchange-failed";
         public const string TokenInvalidCode = "xsolla-id-token-invalid";
+        public const string InternalErrorCode = "xsolla-id-internal-error";
+
+        // The token request is not retried: the authorization code works only once (RFC 6749 section 4.1.2).
+        private const int TokenRequestTimeoutSeconds = 30;
 
         private readonly CancellationTokenSource cancellation = new CancellationTokenSource();
 
@@ -57,7 +62,7 @@ namespace Xsolla.AccelByte
 #if !(UNITY_STANDALONE || UNITY_EDITOR)
             Fail(PlatformUnsupportedCode, "Xsolla ID browser login is only supported on Windows, Mac and Linux. Use LoginWithXsollaIdToken instead.");
 #else
-            _ = RunAsync();
+            _ = RunSafelyAsync();
 #endif
         }
 
@@ -74,11 +79,35 @@ namespace Xsolla.AccelByte
             callback?.Invoke();
         }
 
+        // Start does not await the flow, so an unexpected exception would otherwise be lost and the callback would never run.
+        private async Task RunSafelyAsync()
+        {
+            try
+            {
+                await RunAsync();
+            }
+            catch (Exception exception)
+            {
+                Fail(InternalErrorCode, exception.Message);
+            }
+        }
+
         private async Task RunAsync()
         {
             if (options == null || string.IsNullOrEmpty(options.ClientId) || string.IsNullOrEmpty(options.Issuer))
             {
                 Fail(ConfigInvalidCode, "Set ClientId and Issuer in XsollaIdOptions.");
+                return;
+            }
+            // The token request carries the PKCE code_verifier and returns the tokens, so it must not go over plain HTTP.
+            if (!Uri.TryCreate(options.Issuer, UriKind.Absolute, out Uri issuerUri) || issuerUri.Scheme != Uri.UriSchemeHttps)
+            {
+                Fail(ConfigInvalidCode, "XsollaIdOptions.Issuer must be an https:// URL.");
+                return;
+            }
+            if (options.RedirectPort < 0 || options.RedirectPort > 65535)
+            {
+                Fail(ConfigInvalidCode, "XsollaIdOptions.RedirectPort must be between 0 and 65535. Use 0 for any free port.");
                 return;
             }
             if (options.Scope == null || !options.Scope.Contains("openid"))
@@ -108,9 +137,7 @@ namespace Xsolla.AccelByte
             listener = new XsollaIdLoopbackListener();
             try
             {
-                listener.Start(options.RedirectPort, redirectPath, parameters =>
-                    parameters.TryGetValue("state", out string returnedState) && returnedState == state
-                    && !parameters.ContainsKey("error") && parameters.ContainsKey("code"));
+                listener.Start(options.RedirectPort, redirectPath, state);
             }
             catch (SocketException exception)
             {
@@ -150,7 +177,7 @@ namespace Xsolla.AccelByte
             }
             listener.Dispose();
 
-            // Reject a callback that does not belong to this login before reading anything else (RFC 6749 section 10.12).
+            // The listener already ignores callbacks with another state; check again before reading anything else (RFC 6749 section 10.12).
             if (!parameters.TryGetValue("state", out string returnedState) || returnedState != state)
             {
                 Fail(StateMismatchCode, "The login callback does not belong to this login request.");
@@ -181,6 +208,7 @@ namespace Xsolla.AccelByte
             tokenRequest = UnityWebRequest.Post(XsollaIdProtocol.BuildTokenEndpoint(options.Issuer),
                 XsollaIdProtocol.BuildTokenRequestForm(options.ClientId, code, redirectUri, codeVerifier));
             tokenRequest.SetRequestHeader("Accept", "application/json");
+            tokenRequest.timeout = TokenRequestTimeoutSeconds;
 
             var completion = new TaskCompletionSource<bool>();
             tokenRequest.SendWebRequest().completed += _ => completion.TrySetResult(true);
@@ -253,7 +281,7 @@ namespace Xsolla.AccelByte
                 return;
             }
 
-            Debug.LogWarning($"Xsolla ID login failed: {code}. {description}");
+            AccelByteDebug.LogWarning($"Xsolla ID login failed: {code}. {description}");
             Action<string, string> callback = onFailed;
             Finish();
             callback?.Invoke(code, description);
