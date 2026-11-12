@@ -79,11 +79,11 @@ To run the whole login, call `LoginWithXsollaId` on the main thread. It opens th
 var options = new XsollaIdOptions
 {
     ClientId = "<XSOLLA_ID_CLIENT_ID>",
+    RedirectPort = 8081, // Required: the port of the registered redirect URI
     // Optional, defaults shown
     Issuer = "https://id.xsolla.com",
-    Scope = "openid",
+    Scope = "openid profile email",
     RedirectHost = "127.0.0.1",
-    RedirectPort = 0,
     RedirectPath = "/callback",
     LoginTimeoutSeconds = 300
 };
@@ -93,4 +93,4 @@ XsollaAccelByteSDK.Auth.LoginWithXsollaId(options, callback);
 
 The wrapper cannot detect a closed browser tab, so call `CancelXsollaIdLogin()` to stop a pending login; the callback then receives the cancelled error.
 
-The redirect URI `http://<host>:<port><path>` must be registered for the Xsolla ID client. `RedirectPort = 0` lets the OS pick a free port; use it only if the client accepts any loopback port, otherwise set the registered port. Keep `RedirectHost = "127.0.0.1"` as RFC 8252 recommends; set `"localhost"` only to match a redirect URI that is registered with `localhost`, for example during testing. The listener always binds `127.0.0.1`. Add `profile email` to `Scope` to fill the AGS display name and email from the Xsolla ID account.
+The redirect URI `http://<host>:<port><path>` must be registered for the Xsolla ID client, for example `http://127.0.0.1:<port>/callback`. Xsolla ID matches it exactly, port included, so set `RedirectPort` to the registered port; the default `0` picks a random free port, which does not match. Keep `RedirectHost = "127.0.0.1"` as RFC 8252 recommends; set `"localhost"` only to match a redirect URI that is registered with `localhost`, for example during testing. The listener always binds `127.0.0.1`. `Scope` must contain `openid`; `profile` and `email` give AGS the player's name, picture and email.
